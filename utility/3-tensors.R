@@ -67,3 +67,15 @@ getProj_response_onesplit <- function(outlist, pivotMatlist, fmList){
               ytr = ytr, 
               yte = yte))
 }
+
+
+
+
+getUnitComp <- function(compmatrix){
+  compFac <- apply(compmatrix, 2, function(x){sum(x^2)})
+  compmat_unit <- compmatrix %*% diag(1 / sqrt(compFac))
+  return(compmat_unit)
+}
+
+
+

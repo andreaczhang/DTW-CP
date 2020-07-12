@@ -9,11 +9,11 @@ library(pROC)
 library(Metrics)  
 library(PRROC)  
 
-source('~/Documents/Work/Paper2/Utilities/helpers-rev-5postTensor.R')
-source('~/Documents/Work/Paper2/Utilities/helpers-rev-6classify.R')
+source('./utility/3-tensors.R')
+source('./utility/4-classify.R')
 
-dataPath <- '~/Documents/Data_backup/REVProject2/'
-resultPath <- '~/Documents/Data_backup/REVProject2/'
+dataPath <- 'data/path'
+resultPath <- 'result/path'
 fmList_norm <- readRDS(file = paste0(dataPath, 'splitdata-aki-rev/featmat-aki-norm.RData'))
 
 

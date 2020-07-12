@@ -11,11 +11,10 @@ library(Metrics)
 library(PRROC)    
 
 # ------ model and data specification ------ # 
-# UNIT <- 32
 UNIT <- 64
-# nUnit <- 128
+# 128
 
-MODEL <- 'bilstm1'
+MODEL <- 'lstm1'
 # lstm2, bilstm1, bilstm2
 
 day <- 1
@@ -24,9 +23,9 @@ day <- 1
 
 
 
-source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-4baselineModel.R')
-dataPathsep <- '~/Documents/Data/Project2/Ripoll2014/'
-savePathsep <- '~/Documents/Data/Project2/ALLResults/Baseline_sep/'
+source('./utility/b3-lstm.R')
+dataPathsep <- 'data/path'
+savePathsep <- 'result/path'
 
 
 
@@ -38,9 +37,9 @@ basedata_sep <- readRDS(file = paste0(dataPathsep, 'REVISION-RIPOLL/data_baselin
 if(day == 1){
   ge_list <- paste0('ge', c(12, 18))
 }else if(day == 2){
-  ge_list <- paste0('ge', c(12, 18, 24, 42))
+  ge_list <- paste0('ge', c(12, 18, 24))
 }else{
-  ge_list <- paste0('ge', c(12, 18, 24, 48))
+  ge_list <- paste0('ge', c(12, 18, 24))
 }
 
 
@@ -50,7 +49,7 @@ if(day == 1){
 set.seed(1)
 tic()
 
-for(s in 1:50){
+for(s in 1:10){
   xtr_list <- basedata_sep[[s]]$basedata_tr_xlist
   ytr_list <- basedata_sep[[s]]$basedata_tr_ylist
   xte_list <- basedata_sep[[s]]$basedata_te_xlist

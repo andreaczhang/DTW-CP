@@ -1,5 +1,5 @@
 # do the classification for all days, all splits 
-
+library(kernlab)
 library(magrittr)
 library(purrr)
 library(tictoc)
@@ -9,10 +9,11 @@ library(Metrics)
 library(pROC)
 library(Metrics)  
 library(PRROC)  
-source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-rev-6classify.R')
+library(glmnet)
+source('./utility/4-classify.R')
 
-dataPath <- '~/Documents/Data/Project2/Ripoll2014/REVISION-RIPOLL/'
-readyTRTE_path <- 'readyTRTE-sep/'
+dataPath <- 'data/path'
+readyTRTE_path <- 'readyTRTE-aki/'
 
 dtwType <- 'default'
 
@@ -35,21 +36,39 @@ readyTRTElist <- list(day1 = day1_readytrte,
                       day6 = day6_readytrte, 
                       day7 = day7_readytrte)
 # the function being used in the past: shouuld still work 
+# try <- baseGLM(Xtr = day4_readytrte$split1$Xtrlist$comp20, 
+#                Ytr = day4_readytrte$split1$ytr, 
+#                Xte = day4_readytrte$split1$Xtelist$comp20, 
+#                Yte = day4_readytrte$split1$yte)
+
+
+
+
+# try1 <- runLearners_percomp(Xtr = day4_readytrte$split1$Xtrlist$comp20, 
+#                             Xte = day4_readytrte$split1$Xtelist$comp20, 
+#                             Ytr = day4_readytrte$split1$ytr, 
+#                             Yte = day4_readytrte$split1$yte, 
+#                             bootarg = 100)
+
+# try2 <- runLearners_allcomp(Xtr_allcomp = day4_readytrte$split1$Xtrlist, 
+#                             Xte_allcomp = day4_readytrte$split1$Xtelist, 
+#                             Ytr = day4_readytrte$split1$ytr, 
+#                             Yte = day4_readytrte$split1$yte)
 
 
 
 for(i in 1:7){
-  
-  for(s in 1:10){
-    reslist <- runLearners_allcomp(Xtr_allcomp = readyTRTElist[[i]][[s]]$Xtrlist, 
-                                   Xte_allcomp = readyTRTElist[[i]][[s]]$Xtelist, 
-                                   Ytr = readyTRTElist[[i]][[s]]$ytr, 
+
+  for(s in 1:50){
+    reslist <- runLearners_allcomp(Xtr_allcomp = readyTRTElist[[i]][[s]]$Xtrlist,
+                                   Xte_allcomp = readyTRTElist[[i]][[s]]$Xtelist,
+                                   Ytr = readyTRTElist[[i]][[s]]$ytr,
                                    Yte = readyTRTElist[[i]][[s]]$yte)
-    
-    saveRDS(reslist, file = paste0('~/Documents/Data/Project2/AllResults/Ours', 
-                                   'sep-day', i, '-type-', dtwType, '-sp-', s, '.RData'))
+
+    saveRDS(reslist, file = paste0('result/path',
+                                   'aki-day', i, '-type-', dtwType, '-sp-', s, '.RData'))
     cat('day ', i , 'split ', s, ' for datatype ', dtwType, ' complete\n')
-    
+
   }
 }
 

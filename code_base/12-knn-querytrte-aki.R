@@ -1,20 +1,20 @@
 # query training and test data for aki data 
 library(magrittr)
 library(purrr)
-source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-rev-6knn.R')
+source('utility/b1-knn.R')
 
-dataPath <- '~/Documents/Data/Project2/'
+dataPath <- 'data/path'
 
 
-fsum_aki <- readRDS(paste0(dataPath, 'AKI/REVISION-AKI/dtw-aki-proc/mdtw-aki.RData'))
+fsum_aki <- readRDS(paste0(dataPath, 'dtw-aki-proc/mdtw-aki.RData'))
 
-out_aki_d1 <-  readRDS(paste0(dataPath, 'AKI/REVISION-AKI/alloutcomes_aki_day1.RData'))
-out_aki_d2 <-  readRDS(paste0(dataPath, 'AKI/REVISION-AKI/alloutcomes_aki_day2.RData'))
-out_aki_d3 <-  readRDS(paste0(dataPath, 'AKI/REVISION-AKI/alloutcomes_aki_day3.RData'))
-out_aki_d4 <-  readRDS(paste0(dataPath, 'AKI/REVISION-AKI/alloutcomes_aki_day4.RData'))
-out_aki_d5 <-  readRDS(paste0(dataPath, 'AKI/REVISION-AKI/alloutcomes_aki_day5.RData'))
-out_aki_d6 <-  readRDS(paste0(dataPath, 'AKI/REVISION-AKI/alloutcomes_aki_day6.RData'))
-out_aki_d7 <-  readRDS(paste0(dataPath, 'AKI/REVISION-AKI/alloutcomes_aki_day7.RData'))
+out_aki_d1 <-  readRDS(paste0(dataPath, 'alloutcomes_aki_day1.RData'))
+out_aki_d2 <-  readRDS(paste0(dataPath, 'alloutcomes_aki_day2.RData'))
+out_aki_d3 <-  readRDS(paste0(dataPath, 'alloutcomes_aki_day3.RData'))
+out_aki_d4 <-  readRDS(paste0(dataPath, 'alloutcomes_aki_day4.RData'))
+out_aki_d5 <-  readRDS(paste0(dataPath, 'alloutcomes_aki_day5.RData'))
+out_aki_d6 <-  readRDS(paste0(dataPath, 'alloutcomes_aki_day6.RData'))
+out_aki_d7 <-  readRDS(paste0(dataPath, 'alloutcomes_aki_day7.RData'))
 
 
 trID_day1 <- map(out_aki_d1, function(x){paste0('icustay_', x$trdf$icustay_id)})
@@ -46,25 +46,6 @@ distvec_aki_d4 <- list()
 distvec_aki_d5 <- list()
 distvec_aki_d6 <- list()
 distvec_aki_d7 <- list()
-
-# id_test1 <- teID_day1$split1[1]
-# 
-# id_train <- trID_day1$split1
-# 
-# which(rownames(fsum_aki)== id_test1) 
-# fsum_aki[id_train][519, ] %>% t(.) %>% dim
-# fsum_aki %>% dim
-# 
-# 
-# try <- query_distvec_each(dtwmat = fsum_aki,
-#                           trIDvec = trID_day1$split1,
-#                           teID = teID_day1$split1[1])
-
-
-
-# try2 <- query_distvec_alltest(dtwmat = fsum_aki, 
-#                               trIDvec = trID_day1$split1, 
-#                               teID = teID_day1$split1)
 
 
 
@@ -98,7 +79,7 @@ disvec_aki <- list(distvec_aki_d1 = distvec_aki_d1,
                    distvec_aki_d5 = distvec_aki_d5, 
                    distvec_aki_d6 = distvec_aki_d6, 
                    distvec_aki_d7 = distvec_aki_d7)
-saveRDS(disvec_aki, file = paste0(dataPath, 'AKI/REVISION-AKI/knn_disvecs_aki.RData'))
+saveRDS(disvec_aki, file = paste0(dataPath, 'knn_disvecs_aki.RData'))
 
 
 

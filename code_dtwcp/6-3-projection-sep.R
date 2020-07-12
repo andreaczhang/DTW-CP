@@ -1,8 +1,8 @@
 library(magrittr)
 library(purrr)
-source('~/Documents/Work/Paper2/Utilities/helpers-rev-5postTensor.R')
+source('./utility/3-tensors.R')
 
-dataPath <- '~/Documents/Data_backup/REVProject2/'
+dataPath <- 'data/path'
 splitPath_sep <- 'splitdata-sepsis-rev/'
 
 

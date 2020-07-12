@@ -4,10 +4,10 @@
 library(magrittr)
 library(purrr)
 library(R.matlab)
-source('./Utilities/helpers-rev-5postTensor.R')
-source('./Utilities/helpers-rev-8interpret.R')
+source('./utility/3-tensors.R')
 
-dataPath <- '~/Documents/Data/Project2/AKI/REVISION-AKI/featmat-aki/'
+
+dataPath <- 'data/path'
 
 # first read the files 
 
@@ -58,8 +58,6 @@ for(d in 1:7){
 names(fmList_norm) <- paste0('day', 1:7)
 
 
-# x <- fmList_norm$day7$split50$comp28[, 1]
-# sum(x^2)
 
 saveRDS(fmList_norm, file = paste0(dataPath, 'featmat-aki-norm.RData'))
 

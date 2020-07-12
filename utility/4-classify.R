@@ -16,9 +16,6 @@ measures <- function(actualLabel, predictedLabel, predictedP){
 }
 
 
-
-
-
 baseGLM <- function(Xtr, Ytr, Xte, Yte){
   trdf <- data.frame(X = Xtr, Y = Ytr)
   tedf <- data.frame(X = Xte, Y = Yte)
@@ -39,41 +36,6 @@ baseGLM <- function(Xtr, Ytr, Xte, Yte){
 
 
 
-trainPred_rf <- function(Xtr, Xte, Ytr, Yte){
-  # first try random forest 
-  dataTR <- data.frame(X = Xtr, Y = factor(Ytr))
-  dataTE <- data.frame(X = Xte, Y = factor(Yte))
-  
-  ctrl <- trainControl(method = "cv",     # Cross-validation
-                       number = 5,      # 5 folds
-                       classProbs = TRUE,                  # For AUC
-                       summaryFunction = twoClassSummary)  # For AUC
-  
-  rf_model <- train(make.names(Y) ~ .,
-                    data = dataTR, 
-                    method = "rf",
-                    metric = "ROC",
-                    trControl = ctrl, 
-                    preProcess = c("center","scale"))
-  
-  # predict on test set
-  prob_rf <- predict(object = rf_model, 
-                     newdata = dataTE[, 1:(ncol(dataTE)-1)],
-                     type = "prob")
-  
-  positiveProb <- prob_rf$X1
-  label <- ifelse(positiveProb >= 0.5, 1, 0)
-  
-  measure_obj <- measures(actualLabel = dataTE$Y, 
-                          predictedLabel = label, 
-                          predictedP = positiveProb)
-  
-  res <- data.frame(auc = measure_obj$auc, 
-                    auprc = measure_obj$auprc, 
-                    accu = measure_obj$accu)
-  
-  return(res = res)
-}
 
 
 
@@ -100,7 +62,7 @@ trainPred_svmL <- function(Xtr, Xte, Ytr, Yte){
                        newdata = dataTE[, 1:(ncol(dataTE)-1)],
                        type = "prob")
   
-  positiveProb <- prob_rf$X1
+  positiveProb <- prob_svmL$X1
   label <- ifelse(positiveProb >= 0.5, 1, 0)
   
   measure_obj <- measures(actualLabel = dataTE$Y, 
@@ -139,7 +101,7 @@ trainPred_svmR <- function(Xtr, Xte, Ytr, Yte){
                        newdata = dataTE[, 1:(ncol(dataTE)-1)],
                        type = "prob")
   
-  positiveProb <- prob_rf$X1
+  positiveProb <- prob_svmR$X1
   label <- ifelse(positiveProb >= 0.5, 1, 0)
   
   measure_obj <- measures(actualLabel = dataTE$Y, 
@@ -156,24 +118,141 @@ trainPred_svmR <- function(Xtr, Xte, Ytr, Yte){
 
 
 
-# ====== this is the one for base glm ===== # 
 
-baseGLM <- function(Xtr, Ytr, Xte, Yte){
+getCVfolds <- function(XTR, YTR, nfold){
+  fold_id_list <- createFolds(YTR, k = nfold, list = T, returnTrain = FALSE)
+  
+  # first create the datasets
+  xtrlist <- list()
+  ytrlist <- list()
+  xtelist <- list()
+  ytelist <- list()
+  
+  for(k in 1:nfold){
+    xtrlist[[k]] <- XTR[-fold_id_list[[k]],] # df
+    xtelist[[k]] <- XTR[fold_id_list[[k]], ]
+    ytrlist[[k]] <- YTR[-fold_id_list[[k]]] # vector
+    ytelist[[k]] <- YTR[fold_id_list[[k]]]
+  }
+  return(list(xtrlist = xtrlist, 
+              xtelist = xtelist, 
+              ytrlist = ytrlist, 
+              ytelist = ytelist))
+}
+
+
+
+# =========== GLM specific ============== #
+
+baseGLM_TRcv <- function(Xtr, Ytr, nfold){
+  TR_cvfolds <- getCVfolds(XTR = Xtr, YTR = Ytr, nfold = nfold)
+  auc_vec_cv <- c()
+  for(k in 1:nfold){
+    auc_vec_cv[k] <- baseGLM_cv_auc_single(Xtr = TR_cvfolds$xtrlist[[k]], 
+                                           Ytr = TR_cvfolds$ytrlist[[k]], 
+                                           Xte = TR_cvfolds$xtelist[[k]], 
+                                           Yte = TR_cvfolds$ytelist[[k]])
+  }
+  mean_auc_cv <- mean(auc_vec_cv)
+  
+  return(mean_auc_cv)
+}
+
+
+baseGLM_cv_auc_single <- function(Xtr, Ytr, Xte, Yte){
   trdf <- data.frame(X = Xtr, Y = Ytr)
   tedf <- data.frame(X = Xte, Y = Yte)
   
   mod <- glm(Y ~., family = 'binomial', data = trdf)
   positiveProb <- predict(mod, newdata = tedf[, 1:ncol(tedf)], type = 'response')
-  yPredictLab <- ifelse(positiveProb >= 0.5, 1, 0)
-  # aucval <- Metrics::auc(actual = Yte, predicted = predmod)
-  measure_obj <- measures(actualLabel = Yte, 
-                          predictedLabel = yPredictLab, 
-                          predictedP = positiveProb)
-  res <- data.frame(auc = measure_obj$auc, 
-                    auprc = measure_obj$auprc, 
-                    accu = measure_obj$accu)
-  return(res = res)
+  auc <- Metrics::auc(actual = Yte, predicted = positiveProb)
+  return(auc)
 }
+
+
+
+trainPred_svmL_onepivot <- function(Xtr, Ytr){
+  
+  trainIndex <- createDataPartition(Ytr, p = .7, list = FALSE)
+  # for Xtr alone
+  xtr_holdout <- Xtr[trainIndex,]
+  ytr_holdout <- Ytr[trainIndex]
+  xte_holdout <- Xtr[-trainIndex,]
+  yte_holdout <- Ytr[-trainIndex]
+  
+  dataTR <- data.frame(X = xtr_holdout, Y = factor(ytr_holdout))
+  dataTE <- data.frame(X = xte_holdout, Y = factor(yte_holdout))
+  
+  # train on the tr
+  ctrl <- trainControl(method = "cv",     # Cross-validation
+                       number = 5,      # 5 folds
+                       classProbs = TRUE,                  # For AUC
+                       summaryFunction = twoClassSummary)  # For AUC
+  
+  svmL_model <- train(make.names(Y) ~ .,
+                      data = dataTR, 
+                      method = "svmLinear",
+                      metric = "ROC",
+                      trControl = ctrl, 
+                      preProcess = c("center","scale"), 
+                      tuneGrid = expand.grid(C = seq(0.01, 2, length = 10)))
+  
+  # predict on test set
+  prob_svmL <- predict(object = svmL_model, 
+                       newdata = dataTE[, 1:(ncol(dataTE)-1)],
+                       type = "prob")
+  
+  positiveProb <- prob_svmL$X1
+  label <- ifelse(positiveProb >= 0.5, 1, 0)
+  
+  auc <- Metrics::auc(actual = dataTE$Y, predicted = positiveProb)
+  return(auc)
+}
+
+
+
+
+
+
+
+
+trainPred_svmR_onepivot <- function(Xtr, Ytr){
+  trainIndex <- createDataPartition(Ytr, p = .7, list = FALSE)
+  # for Xtr alone
+  xtr_holdout <- Xtr[trainIndex,]
+  ytr_holdout <- Ytr[trainIndex]
+  xte_holdout <- Xtr[-trainIndex,]
+  yte_holdout <- Ytr[-trainIndex]
+  
+  dataTR <- data.frame(X = xtr_holdout, Y = factor(ytr_holdout))
+  dataTE <- data.frame(X = xte_holdout, Y = factor(yte_holdout))
+  
+  ctrl <- trainControl(method = "cv",     # Cross-validation
+                       number = 5,      # 5 folds
+                       classProbs = TRUE,                  # For AUC
+                       summaryFunction = twoClassSummary)  # For AUC
+  
+  svmR_model <- train(make.names(Y) ~ .,
+                      data = dataTR, 
+                      method = "svmRadial",
+                      metric = "ROC",
+                      trControl = ctrl, 
+                      preProcess = c("center","scale"), 
+                      tuneLength = 10)
+  
+  # predict on test set
+  prob_svmR <- predict(object = svmR_model, 
+                       newdata = dataTE[, 1:(ncol(dataTE)-1)],
+                       type = "prob")
+  
+  positiveProb <- prob_svmR$X1
+  label <- ifelse(positiveProb >= 0.5, 1, 0)
+  
+  auc <- Metrics::auc(actual = dataTE$Y, predicted = positiveProb)
+  return(auc)
+}
+
+
 
 
 trainManyLearners <- function(Xtr, Ytr){
@@ -209,12 +288,6 @@ trainManyLearners <- function(Xtr, Ytr){
   
   return(list(modelList = modelList))
 }
-
-
-
-
-
-
 
 
 

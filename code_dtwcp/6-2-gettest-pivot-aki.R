@@ -1,12 +1,12 @@
 # get projection <PART 2> (this time in R)
-# 2. query (by index) the pivot distances (on pink)
+# 2. query (by index) the pivot distances
 
 # first need to examine the outcomes 
 library(magrittr)
 library(purrr)
-source('~/Documents/Work/Paper2/Utilities/helpers-rev-5postTensor.R')
+source('./utility/3-tensors.R')
 
-dataPath <- '~/Documents/Data_backup/REVProject2/'
+dataPath <- 'data/path'
 splitPath_aki <- 'splitdata-aki-rev/'
 simMatPath_aki <- 'dtw-aki-proc/'
 

@@ -11,9 +11,8 @@ library(Metrics)
 library(PRROC)    
 
 # ------ model and data specification ------ # 
-UNIT <- 32
-# nUnit <- 64
-# nUnit <- 128
+UNIT <- 64
+# 128
 
 MODEL <- 'lstm1'
 # lstm2, bilstm1, bilstm2
@@ -24,9 +23,9 @@ day <- 1
 
 
 
-source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-4baselineModel.R')
-dataPathAKI <- '~/Documents/Data/Project2/AKI/'
-savePathAKI <- '~/Documents/Data/Project2/ALLResults/Baseline_aki/'
+source('./utility/b3-lstm.R')
+dataPathAKI <- 'data/path'
+savePathAKI <- 'result/path'
 
 
 
@@ -38,9 +37,9 @@ basedata_aki <- readRDS(file = paste0(dataPathAKI, 'REVISION-AKI/data_baseline_a
 if(day == 1){
   ge_list <- paste0('ge', c(12, 18))
 }else if(day == 2){
-  ge_list <- paste0('ge', c(12, 18, 24, 42))
+  ge_list <- paste0('ge', c(12, 18, 24))
 }else{
-  ge_list <- paste0('ge', c(12, 18, 24, 48))
+  ge_list <- paste0('ge', c(12, 18, 24))
 }
 
 

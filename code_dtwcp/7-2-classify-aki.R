@@ -8,12 +8,12 @@ library(Metrics)
 library(pROC)
 library(Metrics)  
 library(PRROC)  
-#library(glmnet)
-source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-rev-5postTensor.R')
-source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-rev-6classify.R')
 
-dataPath <- '~/Documents/Data/Project2/AKI/REVISION-AKI/'
-resultPath <- '~/Documents/Data/Project2/AllResults/temp2/'
+source('./utility/3-tensors.R')
+source('./utility/4-classify.R')
+
+dataPath <- 'data/path'
+resultPath <- 'result/path'
 fmList_norm <- readRDS(file = paste0(dataPath, 'featmat-aki-norm.RData'))
 
 # ======= load featmat ======== # 

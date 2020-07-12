@@ -1,19 +1,19 @@
 # query training and test data for sep data 
 library(magrittr)
 library(purrr)
-source('./Utilities/helpers-rev-6knn.R')
+source('./utility/b1-knn.R')
 
 dataPath <- '~/Documents/Data/Project2/'
 
 
-fsum_sep <- readRDS(paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/dtw-sep-feats/mdtw-sep.RData'))
-out_sep_d1 <-  readRDS(paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/alloutcomes_sep_day1.RData'))
-out_sep_d2 <-  readRDS(paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/alloutcomes_sep_day2.RData'))
-out_sep_d3 <-  readRDS(paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/alloutcomes_sep_day3.RData'))
-out_sep_d4 <-  readRDS(paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/alloutcomes_sep_day4.RData'))
-out_sep_d5 <-  readRDS(paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/alloutcomes_sep_day5.RData'))
-out_sep_d6 <-  readRDS(paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/alloutcomes_sep_day6.RData'))
-out_sep_d7 <-  readRDS(paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/alloutcomes_sep_day7.RData'))
+fsum_sep <- readRDS(paste0(dataPath, 'dtw-sep-feats/mdtw-sep.RData'))
+out_sep_d1 <-  readRDS(paste0(dataPath, 'alloutcomes_sep_day1.RData'))
+out_sep_d2 <-  readRDS(paste0(dataPath, 'alloutcomes_sep_day2.RData'))
+out_sep_d3 <-  readRDS(paste0(dataPath, 'alloutcomes_sep_day3.RData'))
+out_sep_d4 <-  readRDS(paste0(dataPath, 'alloutcomes_sep_day4.RData'))
+out_sep_d5 <-  readRDS(paste0(dataPath, 'alloutcomes_sep_day5.RData'))
+out_sep_d6 <-  readRDS(paste0(dataPath, 'alloutcomes_sep_day6.RData'))
+out_sep_d7 <-  readRDS(paste0(dataPath, 'alloutcomes_sep_day7.RData'))
 
 
 trID_day1 <- map(out_sep_d1, function(x){paste0('icustay_', x$trdf$icustay_id)})
@@ -34,33 +34,6 @@ teID_day7 <- map(out_sep_d7, function(x){paste0('icustay_', x$tedf$icustay_id)})
 
 
 
-# try one patient (test), find hes corresponding training cases 
-# id_test1 <- teID_day1$split1[1]
-# 
-# id_train <- trID_day1$split1
-# 
-# which(rownames(fsum_sep)== id_test1)  # 29
-
-# check row and col 29 
-# fsum_sep[29, ][1:6]
-# fsum_sep[, 29] %>% head
-# 
-# fsum_sep[id_train][29, ] %>% t(.) %>% dim
-# in principle, should be the same. but if take by row it's easier as df 
-# and save each as a list 
-
-
-
-# try <- query_distvec_each(dtwmat = fsum_sep, 
-#                           trIDvec = trID_day1$split1, 
-#                           teID = teID_day1$split1[1])
-
-# repeat this for the whole list of test patients 
-
-
-try2 <- query_distvec_alltest(dtwmat = fsum_sep, 
-                              trIDvec = trID_day1$split1, 
-                              teID = teID_day1$split1)
 
 
 
@@ -101,7 +74,7 @@ disvec_sep <- list(distvec_sep_d1 = distvec_sep_d1,
                    distvec_sep_d5 = distvec_sep_d5, 
                    distvec_sep_d6 = distvec_sep_d6, 
                    distvec_sep_d7 = distvec_sep_d7)
-saveRDS(disvec_sep, file = paste0(dataPath, 'Ripoll2014/REVISION-RIPOLL/knn_disvecs_sep.RData'))
+saveRDS(disvec_sep, file = paste0(dataPath, 'knn_disvecs_sep.RData'))
 
 
 

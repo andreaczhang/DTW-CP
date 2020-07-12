@@ -10,12 +10,11 @@ library(Metrics)
 library(PRROC)  
 library(glmnet)
 
-source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-rev-5postTensor.R')
-source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-rev-6classify.R')
-# source('~/Documents/PhdProjects/Project-Paper2/Utilities/helpers-rev-8interpret.R')
+source('./utility/3-tensors.R')
+source('./utility/4-classify.R')
 
 
-dataPath <- '~/Documents/Data/Project2/Ripoll2014/REVISION-RIPOLL/'
+dataPath <- 'data/path'
 simMatPath_sep <- 'dtw-sep-feats/'
 
 # load the features 
@@ -62,7 +61,7 @@ C <- 29
 # ======== start running, see how it goes ====== #
 # res_alldays_thissplit <- list()
 
-for(d in 3:7){
+for(d in 1:7){
   
   # ------ 1. select pivot ----- # 
   n <- length(trID_alldays_10splits[[d]][[S]])
@@ -97,16 +96,6 @@ for(d in 3:7){
                                             Yte = outlist[[d]][[S]]$tedf$death, 
                                             bootarg = F)
     
-    project_res_glmnet[[i]] <- predictLearner_Lasso(xtr = slices_pivots[[i]]$trMat %*% fm_R[[d]][[C]], 
-                                                    xte = slices_pivots[[i]]$teMat %*% fm_R[[d]][[C]], 
-                                                    ytr = outlist[[d]][[S]]$trdf$death, 
-                                                    yte = outlist[[d]][[S]]$tedf$death)
-    # for curiosity, test without projection 
-    noproject_res[[i]] <- predictLearner_Lasso(xtr = slices_pivots[[i]]$trMat, 
-                                               xte = slices_pivots[[i]]$teMat, 
-                                               ytr = outlist[[d]][[S]]$trdf$death, 
-                                               yte = outlist[[d]][[S]]$tedf$death)
-    
     cat('pivot prediction', i, ' day ', d, 'split', S, 'done\n')
   }
   
@@ -120,28 +109,15 @@ for(d in 3:7){
   svm_auprc <- map_dbl(project_res, function(x){x$svm$auprc})
   svm_accu <- map_dbl(project_res, function(x){x$svm$accu})
   
-  glmnet_auc <- map_dbl(project_res_glmnet, function(x){x$auc})
-  glmnet_auprc <- map_dbl(project_res_glmnet, function(x){x$auprc})
-  glmnet_accu <- map_dbl(project_res_glmnet, function(x){x$accu})
-  
-  noprojglmnet_auc <- map_dbl(noproject_res, function(x){x$auc})
-  noprojglmnet_auprc <- map_dbl(noproject_res, function(x){x$auprc})
-  noprojglmnet_accu <- map_dbl(noproject_res, function(x){x$accu})
-  
+
   res_alldays_thissplit <- data.frame(glm_auc, 
                                       glm_auprc, 
                                       glm_accu,
                                       glmnet_auc, 
                                       glmnet_auprc, 
-                                      glmnet_accu,
-                                      noprojglmnet_auc, 
-                                      noprojglmnet_auprc, 
-                                      noprojglmnet_accu,
-                                      svm_auc, 
-                                      svm_auprc, 
-                                      svm_accu)
+                                      glmnet_accu)
   cat('pivot result for day', d, 'split', S, 'done\n')
-  saveRDS(res_alldays_thissplit, file = paste0('~/Documents/Data/Project2/AllResults/Ours/sep_allpiv_comp30_d',
+  saveRDS(res_alldays_thissplit, file = paste0('result/path/sep_allpiv_comp30_d',
                                                d, '_s', S, '.Rdata'))
 }# end of one split
 
